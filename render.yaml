@@ -1,14 +1,12 @@
 services:
-  # 1. C# ASP.NET Core Backend (Web Service)
+  # 1. C# ASP.NET Core Backend (Web Service - Free, No Docker)
   - type: web
     name: hr-backend
-    runtime: docker
-    dockerfilePath: HRManagementSystem/Dockerfile
-    dockerContext: HRManagementSystem
+    runtime: go
     plan: free
+    buildCommand: bash build-backend.sh
+    startCommand: ./publish/HRManagementSystem --urls http://0.0.0.0:$PORT
     envVars:
-      - key: PORT
-        value: "8080"
       - key: ConnectionStrings__DefaultConnection
         sync: false # User enters their free PostgreSQL connection string (Supabase, Neon, etc.) here
       - key: GEMINI_API_KEY
@@ -16,17 +14,13 @@ services:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
 
-  # 2. React Frontend (Web Service)
+  # 2. React Frontend (Static Site - Free, No Docker)
   - type: web
     name: hr-frontend
-    runtime: docker
-    dockerfilePath: hr-frontend/Dockerfile
-    dockerContext: hr-frontend
-    plan: free
+    runtime: static
+    rootDir: hr-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
     envVars:
-      - key: PORT
-        value: "3000"
-      - key: BACKEND_URL
+      - key: VITE_API_URL
         sync: false # User enters the public URL of hr-backend (e.g., https://hr-backend.onrender.com)
-      - key: NGINX_ENVSUBST_FILTER
-        value: "BACKEND_URL"
