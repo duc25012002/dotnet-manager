@@ -3,6 +3,8 @@ using HRManagementSystem.Data;
 using HRManagementSystem.Services;
 using System.Text.Json.Serialization;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
