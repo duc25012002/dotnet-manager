@@ -1,39 +1,22 @@
 services:
-  # 1. SQL Server Database (Private Service)
-  - type: pserv
-    name: hr-sqlserver
-    runtime: image
-    image:
-      url: mcr.microsoft.com/mssql/server:2022-latest
-    plan: standard # Requires at least 2GB RAM
-    envVars:
-      - key: ACCEPT_EULA
-        value: "Y"
-      - key: SA_PASSWORD
-        value: "YourStrong@Passw0rd"
-    disk:
-      name: hr-sqlserver-data
-      mountPath: /var/opt/mssql
-      sizeGB: 10
-
-  # 2. C# ASP.NET Core Backend (Private Service)
-  - type: pserv
+  # 1. C# ASP.NET Core Backend (Web Service)
+  - type: web
     name: hr-backend
     runtime: docker
     dockerfilePath: HRManagementSystem/Dockerfile
     dockerContext: HRManagementSystem
-    plan: starter
+    plan: free
     envVars:
       - key: PORT
         value: "8080"
       - key: ConnectionStrings__DefaultConnection
-        value: Server=hr-sqlserver,1433;Database=HRManagementDB;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;
+        sync: false # User enters their free PostgreSQL connection string (Supabase, Neon, etc.) here
       - key: GEMINI_API_KEY
         sync: false
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
 
-  # 3. React Frontend (Web Service)
+  # 2. React Frontend (Web Service)
   - type: web
     name: hr-frontend
     runtime: docker
@@ -43,3 +26,7 @@ services:
     envVars:
       - key: PORT
         value: "3000"
+      - key: BACKEND_URL
+        sync: false # User enters the public URL of hr-backend (e.g., https://hr-backend.onrender.com)
+      - key: NGINX_ENVSUBST_FILTER
+        value: "BACKEND_URL"

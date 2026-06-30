@@ -41,6 +41,9 @@ services:
     container_name: hr-frontend
     ports:
       - "3000:3000"
+    environment:
+      - BACKEND_URL=http://hr-backend:8080
+      - NGINX_ENVSUBST_FILTER=BACKEND_URL
     depends_on:
       - hr-backend
     restart: always
