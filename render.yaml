@@ -8,7 +8,7 @@ services:
     startCommand: ./publish/HRManagementSystem --urls http://0.0.0.0:$PORT
     envVars:
       - key: ConnectionStrings__DefaultConnection
-        sync: false # User enters their free PostgreSQL connection string (Supabase, Neon, etc.) here
+        sync: false # User enters their free PostgreSQL connection string (Supabase, Neon, Aiven, etc.) here
       - key: GEMINI_API_KEY
         sync: false
       - key: ASPNETCORE_ENVIRONMENT
