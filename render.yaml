@@ -3,7 +3,8 @@ services:
   - type: pserv
     name: hr-sqlserver
     runtime: image
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image:
+      url: mcr.microsoft.com/mssql/server:2022-latest
     plan: standard # Requires at least 2GB RAM
     envVars:
       - key: ACCEPT_EULA
