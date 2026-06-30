@@ -1,0 +1,240 @@
+@model HRManagementSystem.Models.PerformanceReview
+
+@{
+    ViewData["Title"] = "Đánh giá KPI mới";
+    var categories = ViewData["Categories"] as List<HRManagementSystem.Models.KpiCategory>;
+}
+
+<div class="row g-4">
+
+    <!-- FORM CARD -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <span><i class="bi bi-clipboard2-data-fill me-2 text-primary"></i>Thông tin đánh giá</span>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateAssessment" method="post" id="kpiForm">
+
+                    <!-- Employee + Period + Date -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Nhân viên</label>
+                            <select name="EmployeeId" class="form-select" asp-items="ViewBag.EmployeeId" required>
+                                <option value="">— Chọn nhân viên —</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Kỳ đánh giá</label>
+                            <input name="Period" class="form-control" placeholder="VD: Q1 2026" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Ngày đánh giá</label>
+                            <input type="date" name="ReviewDate" class="form-control"
+                                   value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                        </div>
+                    </div>
+
+                    <!-- KPI Table -->
+                    <div class="mb-1 d-flex align-items-center justify-content-between">
+                        <label class="form-label mb-0">Tiêu chí đánh giá <span style="color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0;">(thang điểm 1–10)</span></label>
+                    </div>
+
+                    <div class="table-responsive mb-4" style="border-radius:10px;overflow:hidden;border:1.5px solid #e2e8f0;">
+                        <table class="table mb-0" id="kpiTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:220px;">Tiêu chí</th>
+                                    <th style="width:90px;text-align:center;">Trọng số</th>
+                                    <th>Mô tả</th>
+                                    <th style="width:130px;text-align:center;">Điểm</th>
+                                    <th style="width:90px;text-align:center;">Đóng góp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (categories != null)
+                                {
+                                    foreach (var cat in categories)
+                                    {
+                                        <tr data-weight="@cat.Weight">
+                                            <td>
+                                                <div style="font-weight:600;font-size:0.875rem;">@cat.Name</div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge" style="background:#eef0fd;color:#5b6af0;">@cat.Weight%</span>
+                                            </td>
+                                            <td style="color:#64748b;font-size:0.8rem;">@cat.Description</td>
+                                            <td>
+                                                <input type="number" name="scores[@cat.Id]"
+                                                       class="form-control text-center kpi-score"
+                                                       min="0" max="10" step="0.5" placeholder="0"
+                                                       required />
+                                            </td>
+                                            <td class="text-center contribution-cell" style="font-weight:600;color:#5b6af0;font-size:0.875rem;">
+                                                0.00
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr style="background:#f8fafc;">
+                                    <td colspan="4" class="text-end pe-3" style="font-weight:700;font-size:0.875rem;">
+                                        Điểm KPI tổng hợp:
+                                    </td>
+                                    <td class="text-center" id="totalScore"
+                                        style="font-size:1.1rem;font-weight:800;color:#5b6af0;">
+                                        0.00
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Feedback -->
+                    <div class="mb-4">
+                        <label class="form-label">Nhận xét của quản lý</label>
+                        <textarea name="Feedback" class="form-control" rows="4"
+                                  placeholder="Nhập nhận xét, góp ý cho nhân viên..."></textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-lg me-1"></i> Huỷ
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i> Lưu đánh giá
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR SUMMARY -->
+    <div class="col-lg-4">
+
+        <!-- Score Gauge -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <span><i class="bi bi-speedometer2 me-2 text-warning"></i>Điểm tổng hợp</span>
+            </div>
+            <div class="card-body text-center py-4">
+                <div style="position:relative;display:inline-block;">
+                    <canvas id="gaugeChart" width="180" height="180"></canvas>
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-30%);">
+                        <div id="gaugeValue" style="font-size:2rem;font-weight:800;color:#5b6af0;line-height:1;">0.0</div>
+                        <div style="font-size:0.7rem;color:#94a3b8;font-weight:500;">/ 10</div>
+                    </div>
+                </div>
+                <div id="scoreLabel" class="mt-2" style="font-size:0.85rem;font-weight:600;color:#94a3b8;">
+                    Chưa nhập điểm
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card">
+            <div class="card-header">
+                <span><i class="bi bi-lightbulb-fill me-2 text-warning"></i>Hướng dẫn</span>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-0 px-4 py-3 d-flex gap-3 align-items-start">
+                        <span class="badge mt-1" style="background:#f0fdf4;color:#22c55e;flex-shrink:0;">9–10</span>
+                        <span style="font-size:0.82rem;color:#64748b;">Xuất sắc — vượt kỳ vọng</span>
+                    </li>
+                    <li class="list-group-item border-0 px-4 py-3 d-flex gap-3 align-items-start">
+                        <span class="badge mt-1" style="background:#eef0fd;color:#5b6af0;flex-shrink:0;">7–8</span>
+                        <span style="font-size:0.82rem;color:#64748b;">Tốt — đáp ứng kỳ vọng</span>
+                    </li>
+                    <li class="list-group-item border-0 px-4 py-3 d-flex gap-3 align-items-start">
+                        <span class="badge mt-1" style="background:#fffbeb;color:#f59e0b;flex-shrink:0;">5–6</span>
+                        <span style="font-size:0.82rem;color:#64748b;">Trung bình — cần cải thiện</span>
+                    </li>
+                    <li class="list-group-item border-0 px-4 py-3 d-flex gap-3 align-items-start">
+                        <span class="badge mt-1" style="background:#fef2f2;color:#ef4444;flex-shrink:0;">1–4</span>
+                        <span style="font-size:0.82rem;color:#64748b;">Yếu — cần hỗ trợ ngay</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        Chart.defaults.font.family = 'Inter';
+
+        // Gauge chart (doughnut)
+        const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+        const gaugeChart = new Chart(gaugeCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [0, 10],
+                    backgroundColor: ['#5b6af0', '#f1f5f9'],
+                    borderWidth: 0,
+                    circumference: 270,
+                    rotation: 225
+                }]
+            },
+            options: {
+                responsive: false,
+                cutout: '78%',
+                plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            }
+        });
+
+        function getScoreColor(score) {
+            if (score >= 9) return '#22c55e';
+            if (score >= 7) return '#5b6af0';
+            if (score >= 5) return '#f59e0b';
+            return '#ef4444';
+        }
+
+        function getScoreLabel(score) {
+            if (score === 0) return 'Chưa nhập điểm';
+            if (score >= 9) return '🏆 Xuất sắc';
+            if (score >= 7) return '✅ Tốt';
+            if (score >= 5) return '⚠️ Trung bình';
+            return '❌ Yếu';
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            const rows = document.querySelectorAll('#kpiTable tbody tr');
+            rows.forEach((row, i) => {
+                const weight = parseFloat(row.dataset.weight) / 100;
+                const input = row.querySelector('.kpi-score');
+                const score = parseFloat(input.value) || 0;
+                const contrib = (score * weight);
+                total += contrib;
+                row.querySelector('.contribution-cell').textContent = contrib.toFixed(2);
+            });
+
+            const rounded = Math.min(total, 10);
+            document.getElementById('totalScore').textContent = rounded.toFixed(2);
+            document.getElementById('gaugeValue').textContent = rounded.toFixed(1);
+
+            const color = getScoreColor(rounded);
+            document.getElementById('totalScore').style.color = color;
+            document.getElementById('gaugeValue').style.color = color;
+            document.getElementById('scoreLabel').textContent = getScoreLabel(rounded);
+            document.getElementById('scoreLabel').style.color = color;
+
+            gaugeChart.data.datasets[0].backgroundColor[0] = color;
+            gaugeChart.data.datasets[0].data[0] = rounded;
+            gaugeChart.data.datasets[0].data[1] = 10 - rounded;
+            gaugeChart.update('none');
+        }
+
+        document.querySelectorAll('.kpi-score').forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+    </script>
+}

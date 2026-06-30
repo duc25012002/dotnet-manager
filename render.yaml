@@ -1,0 +1,44 @@
+services:
+  # 1. SQL Server Database (Private Service)
+  - type: pserv
+    name: hr-sqlserver
+    runtime: image
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    plan: standard # Requires at least 2GB RAM
+    envVars:
+      - key: ACCEPT_EULA
+        value: "Y"
+      - key: SA_PASSWORD
+        value: "YourStrong@Passw0rd"
+    disk:
+      name: hr-sqlserver-data
+      mountPath: /var/opt/mssql
+      sizeGB: 10
+
+  # 2. C# ASP.NET Core Backend (Private Service)
+  - type: pserv
+    name: hr-backend
+    runtime: docker
+    dockerfilePath: HRManagementSystem/Dockerfile
+    dockerContext: HRManagementSystem
+    plan: starter
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: ConnectionStrings__DefaultConnection
+        value: Server=hr-sqlserver,1433;Database=HRManagementDB;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+
+  # 3. React Frontend (Web Service)
+  - type: web
+    name: hr-frontend
+    runtime: docker
+    dockerfilePath: hr-frontend/Dockerfile
+    dockerContext: hr-frontend
+    plan: free
+    envVars:
+      - key: PORT
+        value: "3000"

@@ -1,0 +1,250 @@
+@{
+    ViewData["Title"] = "Tổng quan";
+}
+
+<!-- STAT CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#eef0fd; color:#5b6af0;">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-value" style="color:#5b6af0;">120</div>
+            <div class="stat-label">Tổng nhân viên</div>
+            <div class="stat-trend" style="color:#22c55e;">
+                <i class="bi bi-arrow-up-short"></i> +5 tháng này
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f0fdf4; color:#22c55e;">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="stat-value" style="color:#22c55e;">8.5</div>
+            <div class="stat-label">KPI trung bình</div>
+            <div class="stat-trend" style="color:#22c55e;">
+                <i class="bi bi-arrow-up-short"></i> +0.3 so với kỳ trước
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fffbeb; color:#f59e0b;">
+                <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+            <div class="stat-value" style="color:#f59e0b;">12</div>
+            <div class="stat-label">Hợp đồng mới</div>
+            <div class="stat-trend" style="color:#f59e0b;">
+                <i class="bi bi-dash"></i> Không đổi
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#ecfeff; color:#06b6d4;">
+                <i class="bi bi-building-fill"></i>
+            </div>
+            <div class="stat-value" style="color:#06b6d4;">8</div>
+            <div class="stat-label">Phòng ban</div>
+            <div class="stat-trend" style="color:#22c55e;">
+                <i class="bi bi-arrow-up-short"></i> +1 mới
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHARTS ROW -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>Hiệu suất KPI theo tháng</span>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary py-1 px-2">
+                        <i class="bi bi-download" style="font-size:0.75rem;"></i>
+                    </button>
+                    <select class="form-select form-select-sm" style="width:auto; font-size:0.75rem;">
+                        <option>2026</option>
+                        <option>2025</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="kpiChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="bi bi-pie-chart-fill me-2 text-info"></i>Cơ cấu phòng ban</span>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <canvas id="deptChart" height="200"></canvas>
+                <div class="d-flex flex-wrap gap-2 justify-content-center mt-3">
+                    <span class="badge" style="background:#eef0fd;color:#5b6af0;">IT</span>
+                    <span class="badge" style="background:#fef2f2;color:#ef4444;">HR</span>
+                    <span class="badge" style="background:#fffbeb;color:#f59e0b;">Sales</span>
+                    <span class="badge" style="background:#f0fdf4;color:#22c55e;">Finance</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM ROW -->
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <span><i class="bi bi-clock-history me-2 text-warning"></i>Hoạt động gần đây</span>
+                <a href="#" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size:0.75rem;">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    @{
+                        var activities = new[] {
+                            new { icon="bi-person-plus-fill", color="#5b6af0", bg="#eef0fd", text="Nguyễn Văn A được thêm vào phòng IT", time="5 phút trước" },
+                            new { icon="bi-graph-up-arrow",   color="#22c55e", bg="#f0fdf4", text="KPI Q1 2026 đã được cập nhật",         time="1 giờ trước" },
+                            new { icon="bi-file-earmark-text-fill", color="#f59e0b", bg="#fffbeb", text="Hợp đồng mới cho Trần Thị B",    time="3 giờ trước" },
+                            new { icon="bi-building-fill",    color="#06b6d4", bg="#ecfeff", text="Phòng Marketing được thành lập",        time="Hôm qua" },
+                        };
+                    }
+                    @foreach (var a in activities)
+                    {
+                        <li class="list-group-item border-0 px-4 py-3 d-flex align-items-center gap-3">
+                            <div style="width:36px;height:36px;border-radius:9px;background:@a.bg;color:@a.color;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="bi @a.icon"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div style="font-size:0.85rem;font-weight:500;">@a.text</div>
+                                <div style="font-size:0.72rem;color:#94a3b8;">@a.time</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header">
+                <span><i class="bi bi-trophy-fill me-2" style="color:#f59e0b;"></i>Top KPI tháng này</span>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    @{
+                        var tops = new[] {
+                            new { name="Nguyễn Văn A", dept="IT",      score=9.8, rank=1 },
+                            new { name="Trần Thị B",   dept="Sales",   score=9.5, rank=2 },
+                            new { name="Lê Minh C",    dept="Finance", score=9.2, rank=3 },
+                            new { name="Phạm Thu D",   dept="HR",      score=8.9, rank=4 },
+                        };
+                        var rankColors = new[] { "#f59e0b", "#94a3b8", "#cd7f32", "#64748b" };
+                    }
+                    @for (int i = 0; i < tops.Length; i++)
+                    {
+                        var t = tops[i];
+                        <li class="list-group-item border-0 px-4 py-3 d-flex align-items-center gap-3">
+                            <div style="width:28px;height:28px;border-radius:50%;background:@rankColors[i];color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;flex-shrink:0;">
+                                @t.rank
+                            </div>
+                            <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(t.name)&background=5b6af0&color=fff&size=32&bold=true"
+                                 style="width:32px;height:32px;border-radius:50%;flex-shrink:0;" alt="@t.name">
+                            <div class="flex-grow-1">
+                                <div style="font-size:0.85rem;font-weight:600;">@t.name</div>
+                                <div style="font-size:0.72rem;color:#94a3b8;">@t.dept</div>
+                            </div>
+                            <span class="badge" style="background:#f0fdf4;color:#22c55e;font-size:0.8rem;">@t.score</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        Chart.defaults.font.family = 'Inter';
+        Chart.defaults.color = '#64748b';
+
+        // KPI Line Chart
+        const kpiCtx = document.getElementById('kpiChart').getContext('2d');
+        const gradient = kpiCtx.createLinearGradient(0, 0, 0, 220);
+        gradient.addColorStop(0, 'rgba(91,106,240,0.18)');
+        gradient.addColorStop(1, 'rgba(91,106,240,0)');
+
+        new Chart(kpiCtx, {
+            type: 'line',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                datasets: [{
+                    label: 'KPI Trung bình',
+                    data: [7.2, 7.8, 8.1, 7.9, 8.5, 8.7],
+                    borderColor: '#5b6af0',
+                    backgroundColor: gradient,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#5b6af0',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#94a3b8',
+                        bodyColor: '#fff',
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, border: { display: false } },
+                    y: {
+                        min: 6, max: 10,
+                        grid: { color: '#f1f5f9' },
+                        border: { display: false },
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+        // Department Doughnut
+        const deptCtx = document.getElementById('deptChart').getContext('2d');
+        new Chart(deptCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['IT', 'HR', 'Sales', 'Finance'],
+                datasets: [{
+                    data: [40, 15, 30, 15],
+                    backgroundColor: ['#5b6af0', '#ef4444', '#f59e0b', '#22c55e'],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '68%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#94a3b8',
+                        bodyColor: '#fff',
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                }
+            }
+        });
+    </script>
+}
